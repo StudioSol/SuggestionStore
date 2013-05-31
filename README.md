@@ -1,4 +1,4 @@
-ft.js
+SuggestionStore
 =====
 
 See examples.js
