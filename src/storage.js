@@ -118,17 +118,22 @@
         lock.decr();
     };
 
-    Storage.prototype.updateDocument = function(document, callback) {
+    Storage.prototype.updateDocument =
+     function(type, id, getDocumentFn, callback) {
         var that = this, trans, key, lock, docStore, putDoc;
 
         trans = this.idb.transaction(["documents", "references"], "readwrite");
+
         lock = new Lock();
-        key = SuggestionStore.getDocumentKey(document);
-        document._key = key;
+
+        key = SuggestionStore.getDocumentKey({
+            type: type,
+            id: id
+        });
 
         docStore = trans.objectStore("documents");
 
-        putDoc = function() {
+        putDoc = function(document) {
             lock.incr();
             docStore.put(document).onsuccess =  function() {
                 lock.decr();
@@ -137,7 +142,13 @@
 
         lock.incr();
         docStore.get(key).onsuccess = function(e) {
-            var storedDocument = e.target.result;
+            var storedDocument, document;
+
+            storedDocument = e.target.result;
+
+            document = getDocumentFn(storedDocument);
+            document._key = key;
+
             if (!storedDocument || storedDocument !== document.text) {
                 if (storedDocument) {
                     that.removeDocTokens(trans, lock, storedDocument._tokenRefs.slice());
@@ -146,11 +157,11 @@
                 lock.incr();
                 that.createDocTokens(trans, document, function(tokenRefs) {
                     document._tokenRefs = tokenRefs;
-                    putDoc();
+                    putDoc(document);
                     lock.decr();
                 });
             } else {
-                putDoc();
+                putDoc(document);
             }
 
             lock.decr();
@@ -252,7 +263,7 @@
         var that = this, tokens, i, lock, tokenIndex, lookupCb, cursor,
             docKeys = [];
 
-        tokens = SuggestionStore.tokenize(query);
+        tokens = SuggestionStore.cleanQuery(query);
         lock = new SuggestionStore.Lock();
         tokenIndex = this.idb.transaction(["references"])
                      .objectStore("references").index("token");

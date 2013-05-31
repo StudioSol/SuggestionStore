@@ -149,6 +149,11 @@
         new Split()
     ]);
 
+    function cleanQuery(input) {
+        return defaultPipeline.apply(input);
+    }
+    exports.cleanQuery = cleanQuery;
+
     function tokenize(input) {
         var output;
         input = defaultPipeline.apply(input);
