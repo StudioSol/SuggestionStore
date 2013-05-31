@@ -1,3 +1,7 @@
 {
-  "name": "SuggestionStore"
+  "name": "SuggestionStore",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ivanjr0/SuggestionStore.git"
+  }
 }

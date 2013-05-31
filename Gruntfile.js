@@ -13,6 +13,9 @@ module.exports = function(grunt) {
     },
     uglify: {
       dist: {
+        options: {
+            banner: '/*! <%= pkg.name %> <%= pkg.repository.url %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+        },
         files: {
           'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
         }
