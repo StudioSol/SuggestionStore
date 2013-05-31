@@ -15,6 +15,17 @@ SuggestionStore.getStorage("ft", 2, function(e, o) {
     });
 });
 
+// Update
+SuggestionStore.getStorage("ft", 2, function(e, o) {
+    o.updateDocument({
+        "id": 124,
+        "type": "A",
+        "text": "As andorinhas voaram."
+    }, function() {
+        console.log("atualizado");
+    });
+});
+
 // Search
 SuggestionStore.getStorage("ft", 2, function(e, o) {
     o.search("a and", function(err, res) {
