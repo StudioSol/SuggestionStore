@@ -237,9 +237,16 @@
 
         req = this.idb.transaction(["documents"]).objectStore("documents").get(key);
 
-        req.onsuccess = function() {
-            var cursor = e.target.result;
-            callback(null, cursor ? cursor.value : null);
+        req.onsuccess = function(e) {
+            var document = e.target.result;
+
+            if (document) {
+                // internal
+                delete document._key;
+                delete document._tokenRefs;
+            }
+
+            callback(null, document);
         };
 
         req.onerror = function(e) {
