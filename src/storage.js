@@ -191,6 +191,26 @@
         lock.decr();
     };
 
+    Storage.prototype.getDocument = function(type, id, callback) {
+        var key, req;
+
+        key = SuggestionStore.getDocumentKey({
+            type: type,
+            id: id
+        });
+
+        req = this.idb.transaction(["documents"]).objectStore("documents").get(key);
+
+        req.onsuccess = function() {
+            var cursor = e.target.result;
+            callback(null, cursor ? cursor.value : null);
+        };
+
+        req.onerror = function(e) {
+            callback(e.target.errorCode, null);
+        };
+    };
+
     Storage.prototype.getDocs = function(keys, callback) {
         var lock, lookupCb, docStore, i, docs = [];
 

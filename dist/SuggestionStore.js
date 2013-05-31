@@ -46,6 +46,9 @@
     }
     exports.Lock = Lock;
 
+    /**
+     * @private
+     */
     Lock.prototype.check = function() {
         if (this.callback && this.counter === 0) {
             this.callback();
@@ -74,6 +77,9 @@
         this.idb = idb;
     }
 
+    /**
+     * @private
+     */
     Storage.prototype.createDocTokens = function(trans, document, callback) {
         var lock, tokenRefs = [], tokenStore, i,
             tokens = SuggestionStore.tokenize(document.text);
@@ -101,6 +107,9 @@
         lock.decr();
     };
 
+    /**
+     * @private
+     */
     Storage.prototype.removeDocTokens = function(trans, lock, tokenRefs) {
         var decrLock, tokenStore, i;
 
@@ -216,6 +225,26 @@
         });
 
         lock.decr();
+    };
+
+    Storage.prototype.getDocument = function(type, id, callback) {
+        var key, req;
+
+        key = SuggestionStore.getDocumentKey({
+            type: type,
+            id: id
+        });
+
+        req = this.idb.transaction(["documents"]).objectStore("documents").get(key);
+
+        req.onsuccess = function() {
+            var cursor = e.target.result;
+            callback(null, cursor ? cursor.value : null);
+        };
+
+        req.onerror = function(e) {
+            callback(e.target.errorCode, null);
+        };
     };
 
     Storage.prototype.getDocs = function(keys, callback) {
