@@ -1,7 +1,7 @@
 QUnit.module("Replace");
 
 test("char in a string based on a map.", function () {
-    var replace = new FT.Replace();
+    var replace = new SuggestionStore.Replace();
 
     replace.setMap({
         "á": "a"
@@ -11,7 +11,7 @@ test("char in a string based on a map.", function () {
 });
 
 test("multiple chars in a string based on a map.", function () {
-    var replace = new FT.Replace();
+    var replace = new SuggestionStore.Replace();
 
     replace.setMap({
         "á": "a",
@@ -23,30 +23,30 @@ test("multiple chars in a string based on a map.", function () {
 });
 
 test("unicode chars", function () {
-    equal(FT.unicodeReplace.apply("ä áãê"), "a aae");
-    equal(FT.unicodeReplace.apply("ivan júnior"), "ivan junior");
+    equal(SuggestionStore.unicodeReplace.apply("ä áãê"), "a aae");
+    equal(SuggestionStore.unicodeReplace.apply("ivan júnior"), "ivan junior");
 });
 
 
 QUnit.module("Split");
 
 test("words by space", function() {
-    var split = new FT.Split();
+    var split = new SuggestionStore.Split();
     deepEqual(split.apply("foo bar baz"), ["foo", "bar", "baz"]);
 });
 
 test("words and numbers by space", function() {
-    var split = new FT.Split();
+    var split = new SuggestionStore.Split();
     deepEqual(split.apply("foo palcomp3"), ["foo", "palcomp3"]);
 });
 
 test("words by non-text chars", function() {
-    var split = new FT.Split();
+    var split = new SuggestionStore.Split();
     deepEqual(split.apply("foo!!!bar-baz"), ["foo", "bar", "baz"]);
 });
 
 test("without empty tokens", function() {
-    var split = new FT.Split();
+    var split = new SuggestionStore.Split();
     deepEqual(split.apply("foo!"), ["foo"]);
 });
 
@@ -61,7 +61,7 @@ test("calls every step", function() {
         }
     };
 
-    pipe = new FT.Pipeline([
+    pipe = new SuggestionStore.Pipeline([
         fakeStep,
         fakeStep,
         fakeStep
@@ -81,7 +81,7 @@ test("with the output of the prev", function() {
         }
     };
 
-    pipe = new FT.Pipeline([
+    pipe = new SuggestionStore.Pipeline([
         fakeStep,
         fakeStep,
         fakeStep
@@ -93,43 +93,43 @@ test("with the output of the prev", function() {
 QUnit.module("Ngram");
 
 test("makes all combs", function() {
-    deepEqual(FT.createNgrams("ivan"), ["i", "iv", "iva", "ivan"]);
+    deepEqual(SuggestionStore.createNgrams("ivan"), ["i", "iv", "iva", "ivan"]);
 });
 
 test("respects min len", function() {
-    deepEqual(FT.createNgrams("ivan", 2), ["iv", "iva", "ivan"]);
-    deepEqual(FT.createNgrams("ivan", 3), ["iva", "ivan"]);
+    deepEqual(SuggestionStore.createNgrams("ivan", 2), ["iv", "iva", "ivan"]);
+    deepEqual(SuggestionStore.createNgrams("ivan", 3), ["iva", "ivan"]);
 });
 
 test("respects max len", function() {
-    deepEqual(FT.createNgrams("ivan", 1, 1), ["i"]);
-    deepEqual(FT.createNgrams("ivan", 1, 2), ["i", "iv"]);
+    deepEqual(SuggestionStore.createNgrams("ivan", 1, 1), ["i"]);
+    deepEqual(SuggestionStore.createNgrams("ivan", 1, 2), ["i", "iv"]);
 });
 
 test("understands its size", function() {
-    deepEqual(FT.createNgrams("ivan", 1, 7), ["i", "iv", "iva", "ivan"]);
+    deepEqual(SuggestionStore.createNgrams("ivan", 1, 7), ["i", "iv", "iva", "ivan"]);
 });
 
 test("respects min and max together", function() {
-    deepEqual(FT.createNgrams("ivan", 2, 3), ["iv", "iva"]);
+    deepEqual(SuggestionStore.createNgrams("ivan", 2, 3), ["iv", "iva"]);
 });
 
 QUnit.module("TokenSet");
 
 test("keeps order", function() {
-    equal(FT.getTokenSet(["a", "a", "ab", "a"])[0], "a");
-    equal(FT.getTokenSet(["b", "a", "a", "ab", "a"])[0], "b");
+    equal(SuggestionStore.getTokenSet(["a", "a", "ab", "a"])[0], "a");
+    equal(SuggestionStore.getTokenSet(["b", "a", "a", "ab", "a"])[0], "b");
 });
 
 test("doesn't contain an element twice", function() {
-    deepEqual(FT.getTokenSet(["a", "a", "ab", "a"]), ["a", "ab"]);
+    deepEqual(SuggestionStore.getTokenSet(["a", "a", "ab", "a"]), ["a", "ab"]);
 });
 
 QUnit.module("Tokenization");
 
 test("works as expected", function() {
     deepEqual(
-        FT.tokenize("A andorinha vôou"),
+        SuggestionStore.tokenize("A andorinha vôou"),
         ["a", "andorinha", "voou", "a ", "a a", "a an", "a and", "a ando",
          "a andor", "a andori", "a andorin", "a andorinh", "a andorinha",
          "a andorinha ", "a andorinha v", "a andorinha vo", "a andorinha voo",
@@ -155,25 +155,25 @@ test("different types should have different keys even if their ids are equal", f
     };
 
     notEqual(
-        FT.getDocumentKey(dta),
-        FT.getDocumentKey(dtm)
+        SuggestionStore.getDocumentKey(dta),
+        SuggestionStore.getDocumentKey(dtm)
     );
 });
 
 QUnit.module("DocumentSet");
 
 test("elements are ordered by they quantity", function() {
-    equal(FT.getDocumentSet(["ab", "a", "a", "a"])[0], "a");
+    equal(SuggestionStore.getDocumentSet(["ab", "a", "a", "a"])[0], "a");
 });
 
 test("doesn't contain an element twice", function() {
-    deepEqual(FT.getDocumentSet(["b", "a", "a", "b", "a"]), ["a", "b"]);
+    deepEqual(SuggestionStore.getDocumentSet(["b", "a", "a", "b", "a"]), ["a", "b"]);
 });
 
 QUnit.module("Lock");
 
 test("respects incr and decr", function() {
-    var called = false, counter = new FT.Lock();
+    var called = false, counter = new SuggestionStore.Lock();
 
     counter.setCallback(function() {
         called = true;

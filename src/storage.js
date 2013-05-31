@@ -40,7 +40,7 @@
 
     Storage.prototype.createDocTokens = function(trans, document, callback) {
         var lock, tokenRefs = [], tokenStore, i,
-            tokens = FT.tokenize(document.text);
+            tokens = SuggestionStore.tokenize(document.text);
 
         lock = new Lock();
 
@@ -83,7 +83,7 @@
     Storage.prototype.insertDocument = function(document, callback) {
         var key, trans, lock;
 
-        key = FT.getDocumentKey(document);
+        key = SuggestionStore.getDocumentKey(document);
         document._key = key;
         trans = this.idb.transaction(["documents", "references"], "readwrite");
 
@@ -114,7 +114,7 @@
 
         trans = this.idb.transaction(["documents", "references"], "readwrite");
         lock = new Lock();
-        key = FT.getDocumentKey(document);
+        key = SuggestionStore.getDocumentKey(document);
         document._key = key;
 
         docStore = trans.objectStore("documents");
@@ -216,8 +216,8 @@
         var that = this, tokens, i, lock, tokenIndex, lookupCb, cursor,
             docKeys = [];
 
-        tokens = FT.tokenize(query);
-        lock = new FT.Lock();
+        tokens = SuggestionStore.tokenize(query);
+        lock = new SuggestionStore.Lock();
         tokenIndex = this.idb.transaction(["references"])
                      .objectStore("references").index("token");
 
@@ -237,7 +237,7 @@
         }
 
         lock.setCallback(function() {
-            that.getDocs(FT.getDocumentSet(docKeys), function(docs) {
+            that.getDocs(SuggestionStore.getDocumentSet(docKeys), function(docs) {
                 callback(null, docs);
             });
         });
@@ -265,4 +265,4 @@
     }
     exports.getStorage = getStorage;
 
-}(window.FT = window.FT || {}));
+}(window.SuggestionStore = window.SuggestionStore || {}));

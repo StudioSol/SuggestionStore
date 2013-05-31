@@ -159,4 +159,4 @@
     }
     exports.tokenize = tokenize;
 
-}(window.FT = window.FT || {}));
+}(window.SuggestionStore = window.SuggestionStore || {}));

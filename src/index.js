@@ -5,15 +5,22 @@
     }
     exports.getDocumentKey = getDocumentKey;
 
+    /**
+     * Returns unique elements of an Array ordered by the numbers of times they
+     * appear.
+     *
+     * @param {array} docRefs - The original array.
+     */
     function getDocumentSet(docRefs) {
         var count = {}, i = 0, x, xs = [];
 
         for (; i < docRefs.length; i += 1) {
-            count[docRefs[i]] = (count[docRefs[i]] || 0) + 1;
-        }
+            x = docRefs[i];
 
-        for (x in count) {
-            if (count.hasOwnProperty(x)) {
+            if (x in count) {
+                count[x] += 1;
+            } else {
+                count[x] = 1;
                 xs.push(x);
             }
         }
@@ -26,4 +33,4 @@
     }
     exports.getDocumentSet = getDocumentSet;
 
-}(window.FT = window.FT || {}));
+}(window.SuggestionStore = window.SuggestionStore || {}));
