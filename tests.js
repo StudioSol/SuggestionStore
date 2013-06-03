@@ -191,3 +191,32 @@ test("respects incr and decr", function() {
     counter.decr();
     ok(called);
 });
+
+QUnit.module("Group by");
+
+test("with itself as key", function() {
+    deepEqual(
+        SuggestionStore.groupBy(
+            [1, 1, 1, 2, 2, 1, 2],
+            function(e) { return e; }
+        ),
+        {
+            "1": [1, 1, 1, 1],
+            "2": [2,2,2]
+        }
+    );
+});
+
+test("with a property as key", function() {
+    var result = SuggestionStore.groupBy(
+        [
+            {"group": 1},
+            {"group": 2},
+            {"group": 1}
+        ],
+        function(e) { return e.group; }
+    );
+
+    equal(result["1"].length, 2);
+    equal(result["2"].length, 1);
+});
