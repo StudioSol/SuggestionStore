@@ -368,6 +368,18 @@
 
 }(window.SuggestionStore = window.SuggestionStore || {}));
 ;(function(exports) {
+
+    function Trim() {}
+    Trim.prototype.wsRE = /\s/;
+    Trim.prototype.replaceRE = /^\s\s*/;
+    Trim.prototype.apply = function(input) {
+        var str = input.replace(this.replaceRE, ''),
+            ws = this.wsRE,
+            i = str.length;
+        while (ws.test(str.charAt(--i)));
+        return str.slice(0, i + 1);
+    };
+
     function Replace() {
         this.REs = {};
     }
@@ -487,7 +499,7 @@
 
         for (; i < len; i += 1) {
             cur = tokens[i];
-            if (!(cur in swp) && cur.length && cur !== " ") {
+            if (!(cur in swp)) {
                 swp[cur] = 1;
                 result.push(cur);
             }
@@ -513,6 +525,7 @@
     };
 
     var defaultPipeline = new Pipeline([
+        new Trim(),
         new Lower(),
         unicodeReplace,
         new Split()
