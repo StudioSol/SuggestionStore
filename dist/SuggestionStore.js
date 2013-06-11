@@ -487,7 +487,7 @@
 
         for (; i < len; i += 1) {
             cur = tokens[i];
-            if (!(cur in swp)) {
+            if (!(cur in swp) && cur.length && cur !== " ") {
                 swp[cur] = 1;
                 result.push(cur);
             }
