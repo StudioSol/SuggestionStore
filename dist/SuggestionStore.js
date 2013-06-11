@@ -441,13 +441,18 @@
     exports.Split = Split;
     Split.prototype.RE = /[^\w\d]+/g;
     Split.prototype.apply = function(input) {
-        o =  input.split(this.RE);
+        var i = 0, token, output = [];
 
-        if (o && o[o.length - 1] === "") {
-            o.pop();
+        input =  input.split(this.RE);
+
+        for (i = 0; i < input.length; i += 1) {
+            token = input[i];
+            if (token.length) {
+                output.push(token);
+            }
         }
 
-        return o;
+        return output;
     };
 
     function Lower() {}
