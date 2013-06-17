@@ -346,23 +346,49 @@
         lock.decr();
     };
 
-    function getStorage(name, version, callback) {
-        var openReq = indexedDB.open(name, version);
+    function DatabaseManager(name, version) {
+        /* @protected */
+        this.name = name;
+        this.version = version;
+    }
+    exports.DatabaseManager = DatabaseManager;
 
-        openReq.onsuccess = function() {
-            callback(null, new Storage(this.result));
+    DatabaseManager.prototype.get = function(callback) {
+        var that = this, req = indexedDB.open(this.name, this.version);
+
+        req.onsuccess = function() {
+            callback(null, this.result);
         };
 
-        openReq.onerror = function(e) {
+        req.onerror = function(e) {
             callback(e.target.errorCode, null);
         };
 
-        openReq.onupgradeneeded = function(e) {
-            var db = e.currentTarget.result, refStore;
-            db.createObjectStore("documents", {keyPath: "_key"});
-            refStore = db.createObjectStore("references", {autoIncrement: true});
-            refStore.createIndex("token", "token");
+        req.onupgradeneeded = function(e) {
+            that.handleUpgradeNeeded(e);
         };
+    };
+
+    /* @protected */
+    DatabaseManager.prototype.initialSetup = function(db) {
+        var refStore;
+        db.createObjectStore("documents", {keyPath: "_key"});
+        refStore = db.createObjectStore("references", {autoIncrement: true});
+        refStore.createIndex("token", "token");
+    };
+
+    DatabaseManager.prototype.handleUpgradeNeeded = function(e) {
+        this.initialSetup(e.currentTarget.result);
+    };
+
+    function getStorage(manager, callback) {
+        manager.get(function(err, db) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, new Storage(db));
+            }
+        });
     }
     exports.getStorage = getStorage;
 
