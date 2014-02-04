@@ -50,10 +50,10 @@
 
         lock = new Lock();
 
-        onRefAdded = function(e) {
+        function onRefAdded(e) {
             tokenRefs.push(e.target.result);
             lock.decr();
-        };
+        }
 
         tokenStore = trans.objectStore("references");
 
@@ -237,13 +237,15 @@
                     .objectStore("documents");
 
         lookupCb = function(e) {
-            var document = e.target.result;
+            var doc = e.target.result;
 
-            // internal
-            delete document._key;
-            delete document._tokenRefs;
+            if (doc) {
+                // internal
+                delete doc._key;
+                delete doc._tokenRefs;
 
-            docs.push(document);
+                docs.push(doc);
+            }
             lock.decr();
         };
 
@@ -260,31 +262,45 @@
     };
 
     Storage.prototype.search = function(query, callback) {
-        var that = this, tokens, i, lock, tokenIndex, lookupCb, cursor,
-            docKeys = [];
+        var that = this, tokens, i, lock, tokenIndex, cursor,
+            docKeysByToken = {};
 
         tokens = SuggestionStore.cleanQuery(query);
         lock = new SuggestionStore.Lock();
         tokenIndex = this.idb.transaction(["references"])
                      .objectStore("references").index("token");
 
-        lookupCb = function(e) {
-            var cursor = e.target.result;
-            if (cursor) {
-                docKeys.push(cursor.value.documentKey);
-                cursor["continue"]();
-            } else {
-                lock.decr();
-            }
-        };
+        function createLookupCb(token) {
+            return function(e) {
+                var cursor = e.target.result;
+                if (cursor) {
+                    if (!(token in docKeysByToken)) {
+                        docKeysByToken[token] = [];
+                    }
+                    docKeysByToken[token].push(cursor.value.documentKey);
+
+                    cursor["continue"]();
+                } else {
+                    lock.decr();
+                }
+            };
+        }
 
         for (i = 0; i < tokens.length; i += 1) {
             lock.incr();
-            tokenIndex.openCursor(IDBKeyRange.only(tokens[i])).onsuccess = lookupCb;
+
+            tokenIndex.openCursor(
+                IDBKeyRange.only(tokens[i])
+            ).onsuccess = createLookupCb(tokens[i]);
         }
 
         lock.setCallback(function() {
-            that.getDocs(SuggestionStore.getDocumentSet(docKeys), function(docs) {
+            var keys = SuggestionStore.getObjectValues(docKeysByToken),
+                mapFn = SuggestionStore.getDocumentSet,
+                keySets = SuggestionStore.map(keys, mapFn),
+                intersection = SuggestionStore.getIntersection(keySets);
+
+            that.getDocs(intersection, function(docs) {
                 callback(null, docs);
             });
         });

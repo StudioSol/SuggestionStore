@@ -1,3 +1,35 @@
+QUnit.module("Utils");
+test("get object values", function () {
+    var values = SuggestionStore.getObjectValues({
+        "foo": 1,
+        "bar": 2,
+        "baz": "a"
+    });
+
+    deepEqual(values, [1, 2, "a"]);
+});
+
+QUnit.module("DocumentSet");
+
+test("elements are ordered by they quantity", function() {
+    equal(SuggestionStore.getDocumentSet(["ab", "a", "a", "a"])[0], "a");
+});
+
+test("doesn't contain an element twice", function() {
+    deepEqual(SuggestionStore.getDocumentSet(["b", "a", "a", "b", "a"]), ["a", "b"]);
+});
+
+test("get intersection of string sets", function () {
+    var fn = SuggestionStore.getIntersection;
+    deepEqual(fn(["1", "2"], ["1", "2"]), ["1", "2"]);
+    deepEqual(fn(["1", "2"], ["2"]), ["2"]);
+    deepEqual(fn(["1", "2"], ["1"]), ["1"]);
+    deepEqual(fn(["2"], ["1", "2"]), ["2"]);
+    deepEqual(fn(["1"], ["1", "2"]), ["1"]);
+    deepEqual(fn(["1", "2","3"], ["1", "2"], ["2"]), ["2"]);
+    deepEqual(fn(["1", "2","3"], ["1", "2"], ["3"]), []);
+});
+
 QUnit.module("Replace");
 
 test("char in a string based on a map.", function () {
@@ -160,15 +192,6 @@ test("different types should have different keys even if their ids are equal", f
     );
 });
 
-QUnit.module("DocumentSet");
-
-test("elements are ordered by they quantity", function() {
-    equal(SuggestionStore.getDocumentSet(["ab", "a", "a", "a"])[0], "a");
-});
-
-test("doesn't contain an element twice", function() {
-    deepEqual(SuggestionStore.getDocumentSet(["b", "a", "a", "b", "a"]), ["a", "b"]);
-});
 
 QUnit.module("Lock");
 
