@@ -50,9 +50,8 @@
     }
     exports.getDocumentSet = getDocumentSet;
 
-    function getIntersection() {
-        var args = Array.prototype.slice.call(arguments),
-            args_l = args.length, counting = {}, set, str, i = 0, j = 0, 
+    function getIntersection(args) {
+        var args_l = args.length, counting = {}, set, str, i = 0, j = 0,
             results = [];
 
         for (; i < args_l; i += 1) {
