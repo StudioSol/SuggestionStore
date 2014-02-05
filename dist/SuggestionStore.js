@@ -297,7 +297,7 @@
                      .objectStore("references").index("token");
 
         for (i = 0; i < tokens.length; i += 1) {
-            docKeysByToken[token] = [];
+            docKeysByToken[tokens[i]] = [];
         }
 
         function createLookupCb(token) {
