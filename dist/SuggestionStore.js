@@ -296,13 +296,14 @@
         tokenIndex = this.idb.transaction(["references"])
                      .objectStore("references").index("token");
 
+        for (i = 0; i < tokens.length; i += 1) {
+            docKeysByToken[token] = [];
+        }
+
         function createLookupCb(token) {
             return function(e) {
                 var cursor = e.target.result;
                 if (cursor) {
-                    if (!(token in docKeysByToken)) {
-                        docKeysByToken[token] = [];
-                    }
                     docKeysByToken[token].push(cursor.value.documentKey);
 
                     cursor["continue"]();
